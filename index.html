@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Jogo Anti-Stress</title>
+
+<style>
+body{
+margin:0;
+background:#0f0f1a;
+color:white;
+font-family:Arial;
+text-align:center;
+}
+
+#ui{
+position:fixed;
+bottom:20px;
+width:100%;
+}
+
+button{
+padding:10px 20px;
+margin:5px;
+border:none;
+border-radius:10px;
+background:#ff66cc;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#ff3399;
+}
+
+#stress{
+position:fixed;
+top:10px;
+left:50%;
+transform:translateX(-50%);
+background:#222;
+padding:10px 20px;
+border-radius:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="stress">Stress: 50</div>
+
+<div id="ui">
+<button onclick="trocarRoupa()">👕 Trocar Roupa</button>
+<button onclick="comer()">🍔 Comer</button>
+<button onclick="relaxar()">🧘 Relaxar</button>
+<button onclick="som()">🎵 Música</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+
+<script>
+
+let stress = 50
+let musica = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_115b9b9c4b.mp3?filename=calm-ambient-110397.mp3")
+
+function atualizar(){
+document.getElementById("stress").innerText="Stress: "+stress
+}
+
+function comer(){
+stress -= 10
+if(stress<0)stress=0
+atualizar()
+}
+
+function relaxar(){
+stress -= 15
+if(stress<0)stress=0
+atualizar()
+}
+
+function trocarRoupa(){
+boneco.material.color.set(Math.random()*0xffffff)
+}
+
+function som(){
+musica.loop=true
+musica.play()
+}
+
+// 3D
+
+const scene = new THREE.Scene()
+
+const camera = new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000)
+camera.position.z = 5
+
+const renderer = new THREE.WebGLRenderer()
+renderer.setSize(window.innerWidth,window.innerHeight)
+document.body.appendChild(renderer.domElement)
+
+// luz
+
+const light = new THREE.PointLight(0xffffff,1)
+light.position.set(10,10,10)
+scene.add(light)
+
+// boneco
+
+const geometry = new THREE.BoxGeometry(1,2,1)
+const material = new THREE.MeshStandardMaterial({color:0xff66cc})
+const boneco = new THREE.Mesh(geometry,material)
+scene.add(boneco)
+
+// comida
+
+const foodGeo = new THREE.SphereGeometry(0.3)
+const foodMat = new THREE.MeshStandardMaterial({color:0xffaa00})
+const food = new THREE.Mesh(foodGeo,foodMat)
+food.position.x = 2
+scene.add(food)
+
+function animate(){
+requestAnimationFrame(animate)
+
+boneco.rotation.y += 0.01
+food.rotation.x += 0.02
+
+renderer.render(scene,camera)
+}
+
+animate()
+
+</script>
+
+</body>
+</html>
