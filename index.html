@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Mini UNO</title>
+<style>
+body{
+  background:#111;
+  color:white;
+  font-family:Arial;
+  text-align:center;
+}
+h1{margin-top:20px;}
+#mesa{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-top:20px;
+}
+#descarte, #mao{
+  display:flex;
+  gap:10px;
+  margin:15px 0;
+}
+.carta{
+  width:60px;
+  height:90px;
+  border-radius:8px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:24px;
+  cursor:pointer;
+  color:white;
+  font-weight:bold;
+}
+.vermelho{background:red;}
+.azul{background:blue;}
+.verde{background:green;}
+.amarelo{background:gold;color:black;}
+button{
+  margin-top:15px;
+  padding:10px 20px;
+  font-size:18px;
+  cursor:pointer;
+  border:none;
+  border-radius:8px;
+}
+</style>
+</head>
+<body>
+
+<h1>🎴 Mini UNO</h1>
+<p id="turno">Vez do jogador 1</p>
+
+<div id="mesa">
+  <div id="descarte">Carta no topo</div>
+  <div id="mao">Sua mão</div>
+</div>
+
+<button onclick="comprarCarta()">Comprar Carta</button>
+
+<script>
+const cores=["vermelho","azul","verde","amarelo"]
+
+// criar baralho simples (0-9, uma carta de cada cor)
+let baralho=[]
+cores.forEach(c=>{
+  for(let i=0;i<=9;i++){
+    baralho.push({cor:c,numero:i})
+  }
+})
+
+// embaralhar
+baralho.sort(()=>Math.random()-0.5)
+
+// jogadores
+let jogadores=[
+  {mao:[],nome:"Jogador 1"},
+  {mao:[],nome:"Jogador 2"},
+]
+
+let turno=0
+let topo=baralho.pop() // carta inicial
+
+// dar 5 cartas pra cada
+for(let j of jogadores){
+  for(let i=0;i<5;i++){
+    j.mao.push(baralho.pop())
+  }
+}
+
+function atualizarMesa(){
+  document.getElementById("descarte").innerHTML=""
+  let c=document.createElement("div")
+  c.className="carta "+topo.cor
+  c.textContent=topo.numero
+  document.getElementById("descarte").appendChild(c)
+
+  let mao=document.getElementById("mao")
+  mao.innerHTML=""
+  jogadores[0].mao.forEach((carta,index)=>{
+    let div=document.createElement("div")
+    div.className="carta "+carta.cor
+    div.textContent=carta.numero
+    div.onclick=()=>jogar(index)
+    mao.appendChild(div)
+  })
+}
+
+function jogar(ind){
+  let carta=jogadores[0].mao[ind]
+  if(carta.cor===topo.cor || carta.numero===topo.numero){
+    topo=carta
+    jogadores[0].mao.splice(ind,1)
+    if(jogadores[0].mao.length===0){
+      alert("🏆 Você venceu!")
+      location.reload()
+      return
+    }
+    turno=(turno+1)%jogadores.length
+    turnoComputador()
+  } else {
+    alert("Carta inválida!")
+  }
+  atualizarMesa()
+}
+
+function comprarCarta(){
+  if(baralho.length===0){
+    alert("Acabou o baralho!")
+    return
+  }
+  jogadores[0].mao.push(baralho.pop())
+  turno=(turno+1)%jogadores.length
+  turnoComputador()
+  atualizarMesa()
+}
+
+function turnoComputador(){
+  // só computador joga automático
+  let comp=jogadores[1]
+  let jogou=false
+  for(let i=0;i<comp.mao.length;i++){
+    if(comp.mao[i].cor===topo.cor || comp.mao[i].numero===topo.numero){
+      topo=comp.mao[i]
+      comp.mao.splice(i,1)
+      jogou=true
+      break
+    }
+  }
+  if(comp.mao.length===0){
+    alert("💀 Computador venceu!")
+    location.reload()
+  }
+  if(!jogou && baralho.length>0){
+    comp.mao.push(baralho.pop())
+  }
+  turno=(turno+1)%jogadores.length
+}
+
+atualizarMesa()
+</script>
+
+</body>
+</html>
